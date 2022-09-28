@@ -1,4 +1,4 @@
-
+using System.IO;
 
 public class DirectoryCounter
 {
@@ -28,6 +28,10 @@ public class DirectoryCounter
     {
         try
         {
+            if (!System.IO.Directory.Exists(Directory))
+            {
+                return;
+            }
             var dirFiles = System.IO.Directory.GetFiles(Directory);
             lock (FileLock)
             {
@@ -41,9 +45,7 @@ public class DirectoryCounter
                 {
                     Bytes += f.Length;
                 }
-                
             }
-            
         }
         catch (UnauthorizedAccessException){}
 

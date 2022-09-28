@@ -6,7 +6,7 @@ public class Program {
     {
         var HELP_MESSAGE = string.Join(
             Environment.NewLine,
-            "Usage: dotnet run [-s] [-p] [-b] <path>",
+            "Usage: dotnet run -- [-s] [-p] [-b] <path>",
             "Summarize disk usage of the set of FILES, recursively for directories.",
             "-s  Run in single threaded mode",
             "-p  Run in parallel mode (uses all available processors)",
@@ -25,13 +25,16 @@ public class Program {
             Console.WriteLine(HELP_MESSAGE);
             return;
         }
+        
         var directoryInfo = new DirectoryInfo(args[1]);
         if (!directoryInfo.Exists)
         {
-            Console.WriteLine("Directory does not exist");
+            Console.WriteLine("du: cannot access \'" + args[1] + "\': No such file or directory");
             return;
         }
-        
+
+        Console.WriteLine("Directory: " + args[1]);
+
         var directoryCounter = new DirectoryCounter(args[1]);
 
         switch (args[0])
@@ -55,7 +58,7 @@ public class Program {
         sw.Start();
         directoryCounter.ExecuteSequential();
         sw.Stop();
-        Console.WriteLine($"Sequential Calculated in: {sw.Elapsed.Seconds}s");
+        Console.WriteLine($"Sequential Calculated in: {sw.Elapsed.TotalSeconds}s");
         DirectoryCounter.PrintCount();
         DirectoryCounter.ResetCount();
     }
@@ -65,7 +68,7 @@ public class Program {
         sw.Start();
         directoryCounter.ExecuteParallel();
         sw.Stop();
-        Console.WriteLine($"Parallel Calculated in: {sw.Elapsed.Seconds}s");
+        Console.WriteLine($"Parallel Calculated in: {sw.Elapsed.TotalSeconds}s");
         DirectoryCounter.PrintCount();
         DirectoryCounter.ResetCount();
     }
