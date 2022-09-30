@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
-/// <summary>
-/// Daniel Tregea
-/// Driver class to summarize disk usage
-/// </summary>
+﻿/// Daniel Tregea
+using System.Diagnostics;
 public class Program {
     public static void Main(string[] args)
     {
@@ -37,7 +34,7 @@ public class Program {
 
         Console.WriteLine("Directory: " + args[1]);
 
-        var directoryCounter = new DirectoryCounter(args[1]);
+        var directoryCounter = new DirectoryCounter(directoryInfo);
 
         switch (args[0])
         {

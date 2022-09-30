@@ -1,71 +1,50 @@
-/// <summary>
 /// Daniel Tregea
-/// Class used for counting file, folder, and byte counts in directories
-/// </summary>
 public class DirectoryCounter
 {
-    private String Directory;
+    private readonly DirectoryInfo directoryInfo;
 
     private static object ByteLock { get; set; } = new Object();
     private static object FolderLock { get; set; }= new Object();
     private static object FileLock { get; set; } = new Object();
 
     private static long Folders { get; set; }
-
     private static long Bytes { get;  set; }
-
     private static long Files { get; set; }
 
     /// <summary>
-    /// Initialize a DirectoryCounter for a directory
+    /// Initialize a DirectoryCounter with a DirectoryInfo
     /// </summary>
-    /// <param name="directory">The path to the directory</param>
-    public DirectoryCounter(string directory)
+    /// <param name="directoryInfo">DirectoryInfo for a directory</param>
+    public DirectoryCounter(DirectoryInfo directoryInfo)
     {
-        this.Directory = directory;
+        this.directoryInfo = directoryInfo;
     }
-
-    private void CountDirectory(Action<string[]> recurseCallback)
+    
+    private void CountDirectory(Action<DirectoryInfo[]> recurseCallback)
     {
         try
         {
-            if (!System.IO.Directory.Exists(Directory))
+            foreach (var f in directoryInfo.EnumerateFiles("*.*"))
             {
-                return;
-            }
-            var dirFiles = System.IO.Directory.GetFiles(Directory);
-            lock (FileLock)
-            {
-                Files += dirFiles.Length;
-            }
-            
-            foreach (var t in dirFiles)
-            {
-                var f = new FileInfo(t);
+                lock (FileLock)
+                {
+                    Files++;
+                }
+
                 lock (ByteLock)
                 {
                     Bytes += f.Length;
                 }
             }
-        }
-        catch (UnauthorizedAccessException){}
-
-        try
-        {
-            var directories = System.IO.Directory.GetDirectories(Directory);
+            var directories = directoryInfo.GetDirectories();
             lock (FolderLock)
             {
                 Folders += directories.Length;
             }
-
-            if (directories.Length == 0)
-            {
-                return;
-            }
-
+            
             recurseCallback(directories);
         }
-        catch (UnauthorizedAccessException) {}
+        catch (Exception){}
     }
     
     /// <summary>
@@ -77,7 +56,7 @@ public class DirectoryCounter
         {
             Parallel.ForEach(directories, directory =>
             {
-                new DirectoryCounter(Directory + "/" + new FileInfo(directory).Name).ExecuteParallel();
+                new DirectoryCounter(directory).ExecuteParallel();
             });
         });
     }
@@ -91,7 +70,7 @@ public class DirectoryCounter
         {
             foreach (var directory in directories)
             {
-                new DirectoryCounter(Directory + "/" + new FileInfo(directory).Name).ExecuteSequential();
+                new DirectoryCounter(directory).ExecuteSequential();
             }
         });
     }
@@ -101,7 +80,7 @@ public class DirectoryCounter
     /// </summary>
     public static void PrintCount()
     {   
-        Console.WriteLine($"{Folders} folders, {DirectoryCounter.Files:n0} files, {DirectoryCounter.Bytes:n0} bytes");
+        Console.WriteLine($"{Folders} folders, {Files:n0} files, {Bytes:n0} bytes");
     }
     
     /// <summary>
