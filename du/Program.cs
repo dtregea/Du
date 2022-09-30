@@ -1,6 +1,8 @@
-﻿/// Daniel Tregea
-using System.Diagnostics;
-
+﻿using System.Diagnostics;
+/// <summary>
+/// Daniel Tregea
+/// Driver class to summarize disk usage
+/// </summary>
 public class Program {
     public static void Main(string[] args)
     {

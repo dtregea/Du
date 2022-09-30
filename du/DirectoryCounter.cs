@@ -1,5 +1,7 @@
-using System.IO;
-
+/// <summary>
+/// Daniel Tregea
+/// Class used for counting file, folder, and byte counts in directories
+/// </summary>
 public class DirectoryCounter
 {
     private String Directory;
@@ -21,7 +23,6 @@ public class DirectoryCounter
     public DirectoryCounter(string directory)
     {
         this.Directory = directory;
-        
     }
 
     private void CountDirectory(Action<string[]> recurseCallback)
@@ -79,7 +80,6 @@ public class DirectoryCounter
                 new DirectoryCounter(Directory + "/" + new FileInfo(directory).Name).ExecuteParallel();
             });
         });
-
     }
     
     /// <summary>
@@ -87,7 +87,6 @@ public class DirectoryCounter
     /// </summary>
     public void ExecuteSequential()
     {
-
         CountDirectory((directories) =>
         {
             foreach (var directory in directories)
